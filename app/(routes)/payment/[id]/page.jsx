@@ -18,6 +18,7 @@ function Page({ params }) {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [remainingTime, setRemainingTime] = useState(null); 
+  const [gears, setGears] = useState(null);
   const router = useRouter();
 
   const bikeId = params?.id;
@@ -25,6 +26,25 @@ function Page({ params }) {
     toast.error("Bike ID is missing.");
     return;
   }
+
+  useEffect(() => {
+    const fetchBikeDetails = async () => {
+      const { data, error } = await supabase
+        .from("addBike")
+        .select("gears")
+        .eq("id", bikeId)
+        .single();
+
+      if (error) {
+        toast.error("Failed to fetch bike details.");
+        return;
+      }
+
+      setGears(data?.gears);
+    };
+
+    fetchBikeDetails();
+  }, [bikeId]);
 
   const calculateTotalCost = () => {
     if (!timeRate || timeRate <= 0) {
@@ -152,6 +172,7 @@ function Page({ params }) {
       </div>
         <div className="p-10 border rounded-xl shadow-md mb-2">
           <h3 className="font-medium text-xl">Time to Rent</h3>
+          <h2 className="text-lg font-semibold">{gears !== null ? gears : "Loading..."}</h2>
           <div className="flex flex-col gap-5 mt-5">
             <div className="w-full">
               <label>Price ₱</label>

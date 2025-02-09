@@ -17,6 +17,7 @@ import { Info } from "lucide-react";
 
 function TimeDashboard({ params }) {
   const overdueRate = 0.5;
+  const [bikeDetails, setBikeDetails] = useState({});
 
   const predefinedLocations = [
     { label: "Main Gate", value: "main-gate", coordinates: { lat: 8.95742, lng: 125.59735 } },
@@ -68,6 +69,29 @@ function TimeDashboard({ params }) {
 
     return () => clearInterval(interval);
   }, []);*/}
+
+  useEffect(() => {
+    const data = JSON.parse(localStorage.getItem("rentalData")) || {};
+    setRentalData(data);
+
+    const fetchBikeDetails = async () => {
+      const { data: bikes, error } = await supabase
+        .from("addBike")
+        .select("id, gears");
+      
+      if (error) {
+        console.error("Error fetching bike details:", error);
+      } else {
+        const bikeMap = {};
+        bikes.forEach((bike) => {
+          bikeMap[bike.id] = bike;
+        });
+        setBikeDetails(bikeMap);
+      }
+    };
+
+    fetchBikeDetails();
+  }, []);
 
 
   useEffect(() => {
@@ -240,6 +264,7 @@ function TimeDashboard({ params }) {
                 <p>
                   <strong>Remaining Time:</strong> {formatTime(remainingTime[bikeId])}
                 </p>
+                <p><strong>{bikeDetails[bikeId]?.gears || "Unknown"}</strong></p>
                 {overdueTime > 0 && (
                   <p>
                     <strong>Overdue Fee:</strong> ₱{overdueFees[bikeId] || 0}

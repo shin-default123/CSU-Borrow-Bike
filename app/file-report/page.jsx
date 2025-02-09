@@ -157,6 +157,7 @@ function Page() {
                         {bike.gears}
                       </SelectItem>
                     ))}
+                    <SelectItem value="Other issue">Other issue</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.bikeNumber && touched.bikeNumber && (
