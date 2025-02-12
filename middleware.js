@@ -2,7 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher(['/RentDashboard', '/payment(.*)', '/file-report']);
-//const isAdminRoute = createRouteMatcher(['/dashboard', '/edit-bike(.*)', '/users-dashboard', '/transaction-history', '/report-track']);
+const isAdminRoute = createRouteMatcher(['/dashboard', '/edit-bike(.*)', '/users-dashboard', '/transaction-history', '/report-track']);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth(); // Get user session and claims
