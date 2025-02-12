@@ -165,7 +165,7 @@ function Bike() {
                         onClick={() => markAsAvailable(item.id)}
                         className="flex gap-2 text-sm bg-primary rounded-md w-full p-2 text-white justify-center items-center" >
                         <CheckCheck className="h1 w-1" />
-                        Active
+                        Live
                       </Button>
                   </div>
                   <div className="flex gap-2 justify-between">
