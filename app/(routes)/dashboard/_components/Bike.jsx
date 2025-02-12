@@ -14,7 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Bolt, MapPin, Trash, Loader, BikeIcon } from "lucide-react";
+import { Bolt, MapPin, Trash, Loader, BikeIcon, Check, CheckCheck } from "lucide-react";
 import { toast, Toaster } from "sonner";
 
 function Bike() {
@@ -38,6 +38,49 @@ function Bike() {
 
     fetchBikes();
   }, []);
+
+  //Mark as rented
+  const markAsRented = async (id) => {
+    try {
+      const { error } = await supabase
+        .from("addBike")
+        .update({ active: false })
+        .eq("id", id);
+
+      if (error) throw new Error("Failed to mark bike as rented.");
+
+      toast.success("Bike marked as rented.");
+      setBikes((prevBikes) =>
+        prevBikes.map((bike) =>
+          bike.id === id ? { ...bike, active: false } : bike
+        )
+      );
+    } catch (err) {
+      console.error(err.message);
+      toast.error(err.message);
+    }
+  };
+
+   // Mark bike as available
+   const markAsAvailable = async (id) => {
+    try {
+      const { error } = await supabase
+        .from("addBike")
+        .update({ active: true })
+        .eq("id", id);
+
+      if (error) throw new Error("Failed to mark bike as available.");
+
+      toast.success("Bike marked as available.");
+      setBikes((prevBikes) =>
+        prevBikes.map((bike) => (bike.id === id ? { ...bike, active: true } : bike))
+      );
+    } catch (err) {
+      console.error(err.message);
+      toast.error(err.message);
+    }
+  };
+
 
   // Delete bike and associated images
   const handleDelete = async (id) => {
@@ -79,7 +122,7 @@ function Bike() {
     <div>
       <h1 className="text-2xl font-bold px-10 mt-[130px] mb-2">Manage Bikes</h1>
     <div className="px-10 flex gap-1">
-      <div className="grid grid-cols-1  md:grid-cols-5 gap-1">
+      <div className="grid grid-cols-2  md:grid-cols-5 gap-1">
         {bikes.length > 0
           ? bikes.map((item) => (
               <div
@@ -106,19 +149,56 @@ function Bike() {
                   <h2 className="flex gap-2 text-sm text-gray-400">
                     <MapPin className="h-4 w-4" />
                     {item.address}
-                  </h2>
-                  <div className="flex gap-2 mt-2 justify-between">
-                    <h2 className="flex gap-2 text-sm bg-slate-200 rounded-md p-2 w-full text-gray-500 justify-center items-center">
+                  </h2> 
+                  <div className="flex gap-2 mt-1 justify-between">
+                  {/*  <h2 className="flex gap-2 text-sm bg-slate-200 rounded-md p-2 w-full text-gray-500 justify-center items-center">
                       <BikeIcon className="h4 w-4" />
                       {item.vehicleType}
-                    </h2>
+                    </h2> */}
+                    <Button
+                        onClick={() => markAsRented(item.id)}
+                        className="flex gap-2 text-sm bg-gray-700 rounded-md w-full p-2 justify-center items-center" >
+                        <Check className="h1 w-1" />
+                        Rented
+                      </Button>
+                      <Button
+                        onClick={() => markAsAvailable(item.id)}
+                        className="flex gap-2 text-sm bg-primary rounded-md w-full p-2 text-white justify-center items-center" >
+                        <CheckCheck className="h1 w-1" />
+                        Active
+                      </Button>
                   </div>
                   <div className="flex gap-2 justify-between">
-                    <Link href={`/edit-bike/${item.id}`} className="w-full">
+                    <AlertDialog>
+                    <AlertDialogTrigger className="w-full">
                       <Button size="sm" className="w-full">
                         Edit
                       </Button>
-                    </Link>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Edit Bike</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Do you want to edit the bike's details?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction asChild>
+                          <Link href={`/edit-bike/${item.id}`}>
+                            {loading ? (
+                              <Loader className="animate-spin" />
+                            ) : (
+                              "Continue"
+                            )}
+                             </Link>
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                      </AlertDialog>
+
+
+
                     <AlertDialog>
                       <AlertDialogTrigger>
                         <Button size="sm" variant="destructive">
