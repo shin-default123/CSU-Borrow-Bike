@@ -25,8 +25,8 @@ function FilterSection({setVehicleType}) {
             <SelectItem value="Mountain bike">
             <h2 className="flex gap-2"><Bike className="h-5 w-5 text-primary"/>Mountain bike</h2>
             </SelectItem>
-            <SelectItem value="Vintage bike">
-            <h2 className="flex gap-2"><Bike className="h-5 w-5 text-primary"/>Vintage bike</h2>
+            <SelectItem value="City Bike">
+            <h2 className="flex gap-2"><Bike className="h-5 w-5 text-primary"/>City Bike</h2>
             </SelectItem>
             <SelectItem value="Electric bike">
             <h2 className="flex gap-2"><Bike className="h-5 w-5 text-primary"/>Electric bike</h2>
