@@ -14,6 +14,7 @@ function AddNewBikes() {
     { label: "Kinaadman Lot", value: "kinaadman-lot", coordinates: { lat: 8.95623, lng: 125.59752 } },
     { label: "Villares Lot", value: "villares-lot", coordinates: { lat: 8.95329, lng: 125.59752 } }, 
     { label: "Hiradya Lot", value: "hiradya-lot", coordinates: { lat: 8.95445, lng: 125.59768 } },
+    { label: "CSU Main Gymnasium", value: "csu-gym", coordinates: { lat: 8.95584, lng: 125.595828 } },
   ];
 
   const [selectedLocation, setSelectedLocation] = useState(null);
