@@ -9,7 +9,7 @@ import { toast, Toaster } from "sonner";
 import { useRouter } from "next/navigation"; // Ensure correct import
 
 function Page({ params }) {
-  const rentPrice = 20;
+  const rentPrice = 15;
   const [timeRate, setTimeRate] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [name, setName] = useState("");
