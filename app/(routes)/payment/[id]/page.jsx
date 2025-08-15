@@ -106,7 +106,7 @@ function Page({ params }) {
       rentalData[bikeId] = rentalEndTime.toString();
       localStorage.setItem("rentalData", JSON.stringify(rentalData));
 
-      router.push("/");
+      router.push("/RentDashboard");
     } catch (error) {
       toast.error(error.message || "An unexpected error occurred. Please try again.");
     } finally {
