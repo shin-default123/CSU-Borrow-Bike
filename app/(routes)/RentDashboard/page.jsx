@@ -22,6 +22,7 @@ function TimeDashboard({ params }) {
   const predefinedLocations = [
     { label: "Main Gate", value: "main-gate", coordinates: { lat: 8.95742, lng: 125.59735 } },
     { label: "Green Gate", value: "green-gate", coordinates: { lat: 8.95702, lng: 125.59802 } },
+    { label: "CSU Main Gymnasium", value: "csu-gym", coordinates: { lat: 8.95584, lng: 125.595828 } },
  //   { label: "Kinaadman Lot", value: "kinaadman-lot", coordinates: { lat: 8.95623, lng: 125.59752 } },
   //  { label: "Villares Lot", value: "villares-lot", coordinates: { lat: 8.95329, lng: 125.59752 } },
    // { label: "Hiradya Lot", value: "hiradya-lot", coordinates: { lat: 8.95445, lng: 125.59768 } },
