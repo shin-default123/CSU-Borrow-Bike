@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/utils/supabase/client";
 import { useUser } from "@clerk/nextjs";
-import { Input } from "@/components/ui/input";
 import { toast, Toaster } from "sonner";
 import {
   Select,
@@ -13,7 +12,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Info } from "lucide-react";
 
 function TimeDashboard({ params }) {
   const overdueRate = 0.5;
@@ -23,16 +21,12 @@ function TimeDashboard({ params }) {
     { label: "Main Gate", value: "main-gate", coordinates: { lat: 8.95742, lng: 125.59735 } },
     { label: "Green Gate", value: "green-gate", coordinates: { lat: 8.95702, lng: 125.59802 } },
     { label: "CSU Main Gymnasium", value: "csu-gym", coordinates: { lat: 8.95584, lng: 125.595828 } },
- //   { label: "Kinaadman Lot", value: "kinaadman-lot", coordinates: { lat: 8.95623, lng: 125.59752 } },
-  //  { label: "Villares Lot", value: "villares-lot", coordinates: { lat: 8.95329, lng: 125.59752 } },
-   // { label: "Hiradya Lot", value: "hiradya-lot", coordinates: { lat: 8.95445, lng: 125.59768 } },
   ];
 
   const [rentalData, setRentalData] = useState({});
   const [remainingTime, setRemainingTime] = useState({});
   const [overdueFees, setOverdueFees] = useState({});
   const [rackLocation, setRackLocation] = useState({});
-  const [photo, setPhoto] = useState(null);
   const [loading, setLoading] = useState({});
   const { user } = useUser();
 
@@ -44,32 +38,6 @@ function TimeDashboard({ params }) {
     const seconds = String(totalSeconds % 60).padStart(2, "0");
     return `${hours}:${minutes}:${seconds}`;
   };
-
-
-  useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("rentalData")) || {};
-    setRentalData(data);
-  }, []);
-{/*
-    const interval = setInterval(() => {
-      const updatedFees = {};
-      const now = new Date();
-
-      for (const bikeId in data) {
-        const rentalEndTime = new Date(data[bikeId]);
-        const overdueTime = now - rentalEndTime;
-
-        if (overdueTime > 0) {
-          const overdueHours = Math.ceil(overdueTime / (1000 * 60 * 60));
-          updatedFees[bikeId] = overdueRate * overdueHours;
-        }
-      } 
-
-      setOverdueFees(updatedFees);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);*/}
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("rentalData")) || {};
@@ -94,7 +62,6 @@ function TimeDashboard({ params }) {
     fetchBikeDetails();
   }, []);
 
-
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date();
@@ -109,13 +76,13 @@ function TimeDashboard({ params }) {
         updatedTimes[bikeId] = remaining;
 
         if (overdueTime > 0) {
-          const overdueMinutes = Math.ceil(overdueTime / (1000 * 60 * 60));
-          updatedFees[bikeId] = overdueRate * overdueMinutes;
+          const overdueHours = Math.ceil(overdueTime / (1000 * 60 * 60));
+          updatedFees[bikeId] = overdueRate * overdueHours;
         }
 
         if (remaining <= 0) {
-          const overdueMinutes = Math.ceil(Math.abs(remaining) / (1000 * 60 * 60));
-          updatedFees[bikeId] = overdueRate * overdueMinutes;
+          const overdueHours = Math.ceil(Math.abs(remaining) / (1000 * 60 * 60));
+          updatedFees[bikeId] = overdueRate * overdueHours;
         }
       }
 
@@ -124,10 +91,8 @@ function TimeDashboard({ params }) {
     };
 
     const interval = setInterval(updateTimer, 1000);
-
     return () => clearInterval(interval);
   }, [rentalData]);
-
 
   useEffect(() => {
     const channel = supabase
@@ -137,9 +102,7 @@ function TimeDashboard({ params }) {
         { event: "UPDATE", schema: "public", table: "addBike" },
         (payload) => {
           const updatedRow = payload.new;
-
           if (updatedRow.active) {
-            // Clear the relevant transaction
             const updatedRentalData = { ...rentalData };
             delete updatedRentalData[updatedRow.id];
             setRentalData(updatedRentalData);
@@ -160,21 +123,12 @@ function TimeDashboard({ params }) {
     };
   }, [rentalData, overdueFees]);
 
-  const handlePhotoChange = (e) => {
-    setPhoto(e.target.files[0]);
-  };
-
   const handleRackLocationChange = (bikeId, value) => {
     const location = predefinedLocations.find((loc) => loc.value === value);
     setRackLocation((prev) => ({ ...prev, [bikeId]: location }));
   };
 
-  const submitReturnPhoto = async (bikeId) => {
-    if (!photo) {
-      toast.error("Please upload a photo of the returned bike.");
-      return;
-    }
-
+  const submitReturn = async (bikeId) => {
     if (!rackLocation[bikeId]) {
       toast.error("Please select a rack location.");
       return;
@@ -183,35 +137,6 @@ function TimeDashboard({ params }) {
     setLoading((prev) => ({ ...prev, [bikeId]: true }));
 
     try {
-      const fileName = `${Date.now()}-${photo.name}`;
-      const fileExt = photo.name.split(".").pop();
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("bikeRentalPhotos")
-        .upload(fileName, photo, {
-          contentType: `image/${fileExt}`,
-        });
-
-      if (uploadError) {
-        throw new Error("Failed to upload the image. Please try again.");
-      }
-
-      const imageUrl = `${process.env.NEXT_PUBLIC_IMAGE_URL}${fileName}`;
-      const { error: dbError } = await supabase
-        .from("bikeRentalPhotos")
-        .insert([
-          {
-            url: imageUrl,
-            rental_id: bikeId,
-            fullName: user.fullName,
-            email: user.primaryEmailAddress.emailAddress,
-            profileImage: user?.imageUrl,
-          },
-        ]);
-
-      if (dbError) {
-        throw new Error("Failed to save the image URL. Please try again.");
-      }
-
       const { error: updateRackError } = await supabase
         .from("addBike")
         .update({
@@ -236,7 +161,6 @@ function TimeDashboard({ params }) {
       delete updatedFees[bikeId];
       setOverdueFees(updatedFees);
 
-      setPhoto(null);
       setRackLocation((prev) => {
         const { [bikeId]: _, ...rest } = prev;
         return rest;
@@ -255,8 +179,8 @@ function TimeDashboard({ params }) {
       <div className="grid gap-5">
         {Object.keys(rentalData).length > 0 ? (
           Object.keys(rentalData).map((bikeId) => {
-            const rentalEndTime = new Date(rentalData[bikeId]);
             const now = new Date();
+            const rentalEndTime = new Date(rentalData[bikeId]);
             const remaining = rentalEndTime - now;
             const overdueTime = now - rentalEndTime;
 
@@ -269,7 +193,7 @@ function TimeDashboard({ params }) {
                 {overdueTime > 0 && (
                   <p>
                     <strong>Overdue Fee:</strong> ₱{overdueFees[bikeId] || 0}
-                    <h3 className="font-medium ">Pay with Gcash:  09274074495</h3>
+                    <h3 className="font-medium ">Pay with Gcash: 09274074495</h3>
                   </p>
                 )}
 
@@ -295,27 +219,11 @@ function TimeDashboard({ params }) {
                 </div>
 
                 <div className="mt-4">
-                  <div className="flex items-center space-x-2 relative group">
-                    <strong>Submit proof of return</strong>
-                    <span className="cursor-pointer text-gray-500">
-                      <Info size={16} />
-                    </span>
-                    <div className="absolute left-0 mt-2 hidden w-52 bg-gray-800 text-white text-sm px-2 py-1 rounded-md group-hover:block">
-                      Uploading a photo may take some time due to connectivity. Please wait
-                    </div>
-                  </div>
-
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoChange}
-                  />
                   <Button
-                    onClick={() => submitReturnPhoto(bikeId)}
-                    className="mt-2"
+                    onClick={() => submitReturn(bikeId)}
                     disabled={loading[bikeId] || false}
                   >
-                    {loading[bikeId] ? "Processing..." : "Upload Return Photo"}
+                    {loading[bikeId] ? "Processing..." : "Submit Return"}
                   </Button>
                 </div>
               </div>
