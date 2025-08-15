@@ -180,8 +180,8 @@ function EditBike() {
                         <SelectItem value="Mountain bike">
                           Mountain Bike
                         </SelectItem>
-                        <SelectItem value="Vintage bike">
-                          Vintage Bike / Japanese Mamachari
+                        <SelectItem value="City Bike">
+                          City Bike
                         </SelectItem>
                         <SelectItem value="Electric bike">
                           Electric Bike
