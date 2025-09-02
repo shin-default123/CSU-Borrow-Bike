@@ -27,24 +27,31 @@ function Page({ params }) {
     return;
   }
 
-  useEffect(() => {
-    const fetchBikeDetails = async () => {
-      const { data, error } = await supabase
-        .from("addBike")
-        .select("gears")
-        .eq("id", bikeId)
-        .single();
+useEffect(() => {
+  const fetchBikeDetails = async () => {
+    const { data, error } = await supabase
+      .from("addBike")
+      .select("gears, active")
+      .eq("id", bikeId)
+      .single();
 
-      if (error) {
-        toast.error("Failed to fetch bike details.");
-        return;
-      }
+    if (error) {
+      toast.error("Failed to fetch bike details.");
+      return;
+    }
 
-      setGears(data?.gears);
-    };
+    if (!data.active) {
+      toast.error("This bike is currently rented and unavailable.");
+      router.push("/"); // or redirect to your dashboard
+      return;
+    }
 
-    fetchBikeDetails();
-  }, [bikeId]);
+    setGears(data?.gears);
+  };
+
+  fetchBikeDetails();
+}, [bikeId, router]);
+
 
   const calculateTotalCost = () => {
     if (!timeRate || timeRate <= 0) {
@@ -60,6 +67,17 @@ function Page({ params }) {
       toast.error("Please fill in all required fields.");
       return;
     }
+    const { data: bikeStatus, error: bikeStatusError } = await supabase
+    .from("addBike")
+    .select("active")
+    .eq("id", bikeId)
+    .single();
+
+  if (bikeStatusError || !bikeStatus?.active) {
+    toast.error("This bike is already rented. Please choose another.");
+    return;
+  }
+
     if (gcashReference.length !== 13 || !/^\d{13}$/.test(gcashReference)) {
       toast.error("GCash reference must be exactly 13 numeric characters.");
       return;
