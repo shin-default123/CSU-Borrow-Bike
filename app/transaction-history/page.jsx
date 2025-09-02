@@ -21,7 +21,7 @@ function TimeDashboard() {
         const [paymentResponse, photosResponse] = await Promise.all([
           supabase
             .from("payment")
-            .select(`id, renter_name, amount, gcash_reference, rental_start_time, rental_id`),
+            .select(`renter_name, amount, gcash_reference, rental_start_time`),
           supabase
             .from("bikeRentalPhotos")
             .select(
@@ -36,24 +36,17 @@ function TimeDashboard() {
         if (paymentResponse.error) throw paymentResponse.error;
         if (photosResponse.error) throw photosResponse.error;
 
-        // merge by rental_id instead of array index
-        const merged = paymentResponse.data.map((transaction) => {
-          const photoRecord = photosResponse.data.find(
-            (photo) => photo.rental_id === transaction.rental_id
-          );
-
-          return {
-            renter_name: transaction.renter_name || "N/A",
-            amount: transaction.amount || 0,
-            gcash_reference: transaction.gcash_reference || "N/A",
-            rental_start_time: transaction.rental_start_time || "N/A",
-            email: photoRecord?.email || "N/A",
-            fullName: photoRecord?.fullName || "N/A",
-            returned_at: photoRecord?.returned_at || "N/A",
-            vehicleType: photoRecord?.addBike?.vehicleType || "N/A",
-            rackLocation: photoRecord?.addBike?.rackLocation || "N/A",
-          };
-        });
+        const merged = paymentResponse.data.map((transaction, index) => ({
+          renter_name: transaction.renter_name || "N/A",
+          amount: transaction.amount || 0,
+          gcash_reference: transaction.gcash_reference || "N/A",
+          rental_start_time: transaction.rental_start_time || "N/A",
+          email: photosResponse.data[index]?.email || "N/A",
+          fullName: photosResponse.data[index]?.fullName || "N/A",
+          returned_at: photosResponse.data[index]?.returned_at || "N/A",
+          vehicleType: photosResponse.data[index]?.addBike?.vehicleType || "N/A",
+          rackLocation: photosResponse.data[index]?.addBike?.rackLocation || "N/A",
+        }));
 
         const incomeByMonth = merged.reduce((acc, item) => {
           const date = new Date(item.rental_start_time);
@@ -110,7 +103,7 @@ function TimeDashboard() {
 
   const downloadExcel = () => {
     const workbook = XLSX.utils.book_new();
-
+  
     const dataToExport =
       selectedMonth === "All"
         ? mergedData
@@ -121,14 +114,10 @@ function TimeDashboard() {
             })}`;
             return formattedMonth === selectedMonth;
           });
-
+  
     const transactionSheet = XLSX.utils.json_to_sheet(dataToExport);
-    XLSX.utils.book_append_sheet(
-      workbook,
-      transactionSheet,
-      selectedMonth === "All" ? "All Transactions" : selectedMonth
-    );
-
+    XLSX.utils.book_append_sheet(workbook, transactionSheet, selectedMonth === "All" ? "All Transactions" : selectedMonth);
+  
     const monthlyIncomeSheet = XLSX.utils.json_to_sheet(
       monthlyIncome.map(({ period, totalIncome }) => ({
         Period: period,
@@ -136,9 +125,10 @@ function TimeDashboard() {
       }))
     );
     XLSX.utils.book_append_sheet(workbook, monthlyIncomeSheet, "Monthly Income");
-
+  
     XLSX.writeFile(workbook, `Transaction_Dashboard_${selectedMonth}.xlsx`);
   };
+  
 
   return (
     <div className="p-8">
@@ -169,14 +159,18 @@ function TimeDashboard() {
                       {item.period}
                     </option>
                   ))}
+                  
                 </select>
                 <button
                   onClick={downloadExcel}
                   className="text-white bg-primary px-2 py-2 rounded hover:bg-blue-600 mx-1"
                 >
-                  <Download />
+                  <Download  /> 
                 </button>
               </div>
+
+              
+             
 
               <div className="mt-8">
                 <table className="w-full border-collapse border border-gray-300">
