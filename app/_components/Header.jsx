@@ -73,6 +73,11 @@ function Header() {
                   Rental Dashboard
                 </span>
               </Link>
+              <Link href={"/stories"}>
+                <span className="hover:text-primary font-medium text-sm cursor-pointer">
+                  Community Stories
+                </span>
+              </Link>
             </>
           )}
           {isAdmin && (
@@ -101,6 +106,12 @@ function Header() {
                   Reported Issues
                 </span>
               </Link>
+                <Link href={"/add-stories"}>
+                <span className="hover:text-primary font-medium text-sm cursor-pointer">
+                  Write Stories
+                </span>
+              </Link>             
+              
             </>
           )}
         </div>
