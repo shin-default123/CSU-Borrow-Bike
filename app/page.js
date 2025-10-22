@@ -11,12 +11,13 @@ export default function Home() {
   const router = useRouter();
   const { user, isSignedIn } = useUser();
 
+  {/*
   useEffect(() => {
     if (!isSignedIn)
       router.push("/sign-in")
     return
   }, [isSignedIn]);
-
+*/}
   if (user && user.publicMetadata.role) {
     return <BikeDashboard />; 
   } else {

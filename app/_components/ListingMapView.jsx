@@ -6,6 +6,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import GoogleMapSection from "./GoogleMapSection";
 import Modal from "../modal/modal";
+import StoriesPage from "../(routes)/stories/page";
 
 function ListingMapView({ type }) {
   const [listing, setListing] = useState([]);
@@ -82,12 +83,20 @@ function ListingMapView({ type }) {
           setCoordinates={setCoordinates}
         />
       </div>
+      {/*
       <div className="fixed right-10 h-full md:w-[350px] lg:w-[450px] xl:w-[700px] ">
-        <GoogleMapSection 
+       <GoogleMapSection 
         listing={listing}
        coordinates={coordinates}
         />
       </div>
+      */}
+
+
+
+
+
+      <StoriesPage></StoriesPage>
     </div>
      </div>
   );

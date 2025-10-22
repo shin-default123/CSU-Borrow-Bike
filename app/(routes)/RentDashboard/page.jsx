@@ -16,11 +16,24 @@ import {
 function TimeDashboard({ params }) {
   const overdueRate = 0.5;
   const [bikeDetails, setBikeDetails] = useState({});
+  const [formCompleted, setFormCompleted] = useState(false);
 
   const predefinedLocations = [
-    { label: "Main Gate", value: "main-gate", coordinates: { lat: 8.95742, lng: 125.59735 } },
-    { label: "Green Gate", value: "green-gate", coordinates: { lat: 8.95702, lng: 125.59802 } },
-    { label: "CSU Main Gymnasium", value: "csu-gym", coordinates: { lat: 8.95584, lng: 125.595828 } },
+    {
+      label: "Main Gate",
+      value: "main-gate",
+      coordinates: { lat: 8.95742, lng: 125.59735 },
+    },
+    {
+      label: "Green Gate",
+      value: "green-gate",
+      coordinates: { lat: 8.95702, lng: 125.59802 },
+    },
+    {
+      label: "CSU Main Gymnasium",
+      value: "csu-gym",
+      coordinates: { lat: 8.95584, lng: 125.595828 },
+    },
   ];
 
   const [rentalData, setRentalData] = useState({});
@@ -47,7 +60,7 @@ function TimeDashboard({ params }) {
       const { data: bikes, error } = await supabase
         .from("addBike")
         .select("id, gears");
-      
+
       if (error) {
         console.error("Error fetching bike details:", error);
       } else {
@@ -134,6 +147,11 @@ function TimeDashboard({ params }) {
       return;
     }
 
+    if (!formCompleted) {
+      toast.error("Please complete the feedback form before returning your bike.");
+      return;
+    }
+
     setLoading((prev) => ({ ...prev, [bikeId]: true }));
 
     try {
@@ -187,13 +205,16 @@ function TimeDashboard({ params }) {
             return (
               <div key={bikeId} className="p-5 border rounded-lg shadow-md">
                 <p>
-                  <strong>Remaining Time:</strong> {formatTime(remainingTime[bikeId])}
+                  <strong>Remaining Time:</strong>{" "}
+                  {formatTime(remainingTime[bikeId])}
                 </p>
-                <p><strong>{bikeDetails[bikeId]?.gears || "Unknown"}</strong></p>
+                <p>
+                  <strong>{bikeDetails[bikeId]?.gears || "Unknown"}</strong>
+                </p>
                 {overdueTime > 0 && (
                   <p>
                     <strong>Overdue Fee:</strong> ₱{overdueFees[bikeId] || 0}
-                    <h3 className="font-medium ">Pay with Gcash: 09274074495</h3>
+                    <h3 className="font-medium">Pay with Gcash: 09274074495</h3>
                   </p>
                 )}
 
@@ -218,6 +239,36 @@ function TimeDashboard({ params }) {
                   </Select>
                 </div>
 
+                {/* ✅ Google Form Section */}
+                <div className="mt-6 border-t pt-4">
+                  <h3 className="text-lg font-semibold mb-2">
+                    Please complete the feedback form before returning:
+                  </h3>
+
+                  <iframe
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSe-Mkf0CoR93k-xEBYCdktP1hIkr3ss5Kd5E6gYE004_ZTKig/viewform?embedded=true"
+                    width="100%"
+                    height="600"
+                    frameBorder="0"
+                    marginHeight="0"
+                    marginWidth="0"
+                    className="rounded-lg border"
+                  >
+                    Loading…
+                  </iframe>
+
+                  <div className="flex items-center mt-3 space-x-2">
+                    <input
+                      type="checkbox"
+                      id={`formDone-${bikeId}`}
+                      onChange={(e) => setFormCompleted(e.target.checked)}
+                    />
+                    <label htmlFor={`formDone-${bikeId}`}>
+                      I have completed the feedback form.
+                    </label>
+                  </div>
+                </div>
+
                 <div className="mt-4">
                   <Button
                     onClick={() => submitReturn(bikeId)}
@@ -240,4 +291,3 @@ function TimeDashboard({ params }) {
 }
 
 export default TimeDashboard;
-
