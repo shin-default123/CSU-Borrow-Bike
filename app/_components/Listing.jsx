@@ -97,7 +97,7 @@ function Listing({
                 onChange={(e) => setViewMode(e.target.value)}
               >
                 <option value="listing">Listing</option>
-                <option value="map">Map</option>
+                <option value="map">Stories</option>
               </select>
             </div>
           </div>
@@ -168,6 +168,7 @@ function Listing({
       )}
 
       {/* Map View */}
+      {/*
       {viewMode === "map" && (
         
         <div className="h-[400px] md:hidden">
@@ -185,7 +186,7 @@ function Listing({
           <GoogleMapSection  listing={listing} /><div className="flex">
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
