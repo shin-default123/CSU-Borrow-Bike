@@ -92,11 +92,13 @@ function ListingMapView({ type }) {
       </div>
       */}
 
+      
 
+      <div className="right-10 h-full md:w-[350px] lg:w-[450px] xl:w-[700px] ">
+                <StoriesPage></StoriesPage>
 
+      </div>
 
-
-      <StoriesPage></StoriesPage>
     </div>
      </div>
   );
